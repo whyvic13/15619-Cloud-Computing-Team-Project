@@ -1,0 +1,79 @@
+Initial
+sudo vim /etc/mysql/my.cnf
+ 
+init-connect='SET NAMES utf8mb4'
+collation_server=utf8mb4_unicode_ci
+character_set_server=utf8mb4
+skip-character-set-client-handshake
+ 
+Restart;
+ 
+show variables like "char%";
+------------------------------------------------------
+Set remote connection
+
+sudo vim /etc/mysql/my.cnf
+Comment bindaddress
+grant all on q6.* to root@'%' identified by '1234';
+grant all on q6.* to root@localhost identified by '1234';
+
+sudo /etc/init.d/mysql restart
+
+------------------------------------------------------
+q2 mysql configure
+
+create table tweet (user_id bigint(64) unsigned, created_at int unsigned, text mediumtext charset 'utf8mb4' collate utf8mb4_unicode_ci) ENGINE= MYISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+alter table tweet partition by hash(user_id) partitions 32;
+
+load data local infile '/home/ubuntu/q2/q2final' into table tweet character set 'utf8mb4' fields terminated by ",";
+
+UPDATE tweet SET text = REPLACE (text, '\\u908d\\u87f6\\u50ea', ',');
+
+create index tweet_index on tweet (user_id, created_at);
+
+------------------------------------------------------
+Q3 Mysql
+CREATE TABLE `tweet0` (`user_id` bigint(64),`created_at` varchar(16) charset 'utf8mb4' collate utf8mb4_unicode_ci,`tweet_id` bigint(64),`score` bigint(64),`text` varchar(600) charset 'utf8mb4' collate utf8mb4_unicode_ci) ENGINE= MYISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+ 
+alter table tweet0 partition by hash(user_id) partitions 128; 
+
+load data local infile '/home/ubuntu/q3/result0.csv' into table tweet0 character set 'utf8mb4' fields terminated by ",";
+
+UPDATE tweet0 SET text = REPLACE (text, 'u908du87f6u50ea', ',');
+UPDATE tweet0 SET text = REPLACE (text, '\\', '\\\\') where tweet_id = 460045590483587073;
+create index tweet_index on tweet0 (user_id, created_at, score, tweet_id);
+
+
+
+CREATE TABLE `tweet1` (`user_id` bigint(64),`created_at` varchar(16) charset 'utf8mb4' collate utf8mb4_unicode_ci,`tweet_id` bigint(64),`score` bigint(64),`text` varchar(600) charset 'utf8mb4' collate utf8mb4_unicode_ci) ENGINE= MYISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+------------------------------------------------------
+
+Q4 MySQL
+CREATE TABLE `q4` (`hashTag` varchar(200) charset 'utf8mb4' collate utf8mb4_bin,`text` mediumtext charset 'utf8mb4' collate utf8mb4_unicode_ci) ENGINE= MYISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+
+load data local infile '/home/ubuntu/q4/q4_processed' into table q4 character set 'utf8mb4' fields terminated by ",";
+
+UPDATE q4 SET text = REPLACE (text, 'u908du87f6u50ea', ',');
+
+create index hashtag_index on q4 (hashTag);
+
+------------------------------------------------------
+
+Q6 MySql
+
+CREATE TABLE `tweet` (`tweet_id` bigint(64) unsigned,`text` mediumtext charset 'utf8mb4' collate utf8mb4_unicode_ci, PRIMARY KEY (tweet_id)) ENGINE= MYISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+alter table tweet partition by hash(tweet_id) partitions 32;
+
+load data local infile '/home/ubuntu/q6/q6final' into table tweet character set 'utf8mb4' fields terminated by ",";
+
+
+
+UPDATE tweet SET text = REPLACE (text, '\\u908d\\u87f6\\u50ea', ',');
+------------------------------------------------------
+
+Q6backend_1: 172.31.52.42
+Q6backend_2: 172.31.50.120
